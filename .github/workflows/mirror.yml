@@ -37,6 +37,7 @@ jobs:
           fetch-depth: 2
           path: ports
           show-progress: false
+          persist-credentials: false
       - name: Checkout mpbb
         uses: actions/checkout@v6
         with:
@@ -45,6 +46,7 @@ jobs:
           ref: master
           path: mpbb
           show-progress: false
+          persist-credentials: false
       - name: Checkout contrib
         uses: actions/checkout@v6
         with:
@@ -53,6 +55,7 @@ jobs:
           ref: master
           path: contrib
           show-progress: false
+          persist-credentials: false
       - name: Bootstrap MacPorts
         env:
             MP_CI_RELEASE: ${{ vars.MP_CI_RELEASE }}
@@ -204,14 +207,29 @@ jobs:
           echo "Making distfiles readable"
           sudo chmod -R a+rX ./macports
 
-          touch ssh_key
-          chmod 0600 ssh_key
-          echo "$MIRROR_SSH_KEY" > ssh_key
-          echo "$MIRROR_SSH_HOSTKEY" > ssh_known_hosts
-          export RSYNC_RSH="ssh -l $MIRROR_SSH_USER -i ssh_key -oUserKnownHostsFile=ssh_known_hosts -p 23"
+          # Create a secure temporary directory for SSH credentials
+          SSH_TMP_DIR=$(mktemp -d)
+          SSH_KEY_FILE="${SSH_TMP_DIR}/ssh_key"
+          SSH_KNOWN_HOSTS="${SSH_TMP_DIR}/ssh_known_hosts"
+
+          # Ensure cleanup happens even if the script fails or is cancelled
+          cleanup_ssh() {
+              rm -rf "$SSH_TMP_DIR" 2>/dev/null || true
+          }
+          trap cleanup_ssh EXIT
+
+          # Write SSH credentials with restrictive permissions
+          touch "$SSH_KEY_FILE"
+          chmod 0600 "$SSH_KEY_FILE"
+          printf '%s\n' "$MIRROR_SSH_KEY" > "$SSH_KEY_FILE"
+          printf '%s\n' "$MIRROR_SSH_HOSTKEY" > "$SSH_KNOWN_HOSTS"
+
+          export RSYNC_RSH="ssh -l $MIRROR_SSH_USER -i $SSH_KEY_FILE -oUserKnownHostsFile=$SSH_KNOWN_HOSTS -oStrictHostKeyChecking=yes -p 23"
           echo "Uploading distfiles"
           rsync -av --ignore-existing --progress ./macports/distfiles/ "${MIRROR_SSH_HOST}:pub/distfiles"
-          rm -f ssh_key ssh_known_hosts
+
+          # Explicit cleanup (trap will also run on exit)
+          cleanup_ssh
 
           echo "Updating mirrored status of ports"
           port-tclsh mpbb/tools/update-mirrordb.tcl "$MIRROR_DB_URL" "$MIRROR_DB_CREDENTIALS" mirror_done portfile_hash_cache portname_portfile_map

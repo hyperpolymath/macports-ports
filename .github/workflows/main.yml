@@ -33,6 +33,7 @@ jobs:
           fetch-depth: 64
           path: ports
           show-progress: false
+          persist-credentials: false
       - name: Checkout mpbb
         uses: actions/checkout@v6
         with:
@@ -40,6 +41,7 @@ jobs:
           repository: macports/mpbb
           path: mpbb
           show-progress: false
+          persist-credentials: false
       - name: Set checkout permissions
         run: |
             chmod -R a+rX ./ports
