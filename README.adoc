@@ -1,0 +1,60 @@
+= MacPorts Ports Fork
+:author: hyperpolymath
+:revdate: 2025-12-26
+:toc:
+:toc-placement: preamble
+
+Fork of the official https://github.com/macports/macports-ports[MacPorts ports repository] for custom port development and upstream contributions.
+
+== Status
+
+**Repo project specification - will be uploaded shortly**
+
+This repository is a staging fork. The bulk of content (~25,000+ Portfiles) originates from upstream MacPorts.
+
+== Custom Additions
+
+=== Ports
+
+[cols="1,3"]
+|===
+| Port | Description
+
+| `devel/bunsenite`
+| Nickel configuration file parser with Rust core and multi-language FFI bindings (Deno, ReScript, WASM). Version 1.0.2.
+|===
+
+=== Infrastructure
+
+* **CodeQL Security Scanning** - Automated vulnerability analysis for C/C++, Python, and GitHub Actions
+* **Dependabot** - Daily monitoring for GitHub Actions dependency updates
+* **Hardened Workflows** - SSH key handling improvements, `persist-credentials: false` across all checkout steps
+
+== Roadmap
+
+[NOTE]
+====
+Detailed roadmap pending project specification upload.
+====
+
+=== Planned
+
+1. [ ] Upload project specification document
+2. [ ] Additional custom ports (TBD)
+3. [ ] Upstream contribution workflow documentation
+
+== Usage
+
+Requires macOS with MacPorts installed. See https://www.macports.org/install.php[MacPorts Installation Guide].
+
+[source,bash]
+----
+# Add this repo as a local ports tree
+sudo port install bunsenite
+----
+
+== License
+
+BSD 3-Clause (MacPorts Project). See link:LICENSE[LICENSE].
+
+Custom ports may have their own licenses specified in individual Portfiles.
