@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
 name: "lint & build changed ports"
 
 on:
@@ -68,7 +69,8 @@ jobs:
               | grep -E '^[^._/][^/]*/[^/]+/(Portfile$|files/)' \
               | cut -d/ -f2 \
               | sort -u \
-              | tr '\n' ' ' \
+              | tr '
+' ' ' \
               | sed 's/ $//')
 
           echo "$portlist"
@@ -90,7 +92,8 @@ jobs:
               --archive-site-private= \
               --include-deps=no \
               $portlist \
-              | tr '\n' ' ')
+              | tr '
+' ' ')
           for subport in $new_subports; do
             echo "$subport"
             echo "- ${subport}" >> $GITHUB_STEP_SUMMARY
@@ -126,11 +129,15 @@ jobs:
               else
                 echo "##### ⚠️ ${subport}" >> $GITHUB_STEP_SUMMARY
               fi
-              printf '```\n%s\n```\n' "$messages" >> $GITHUB_STEP_SUMMARY
+              printf '```
+%s
+```
+' "$messages" >> $GITHUB_STEP_SUMMARY
 
               # See https://github.com/actions/toolkit/issues/193#issuecomment-605394935
               encoded_messages="port lint ${subport}:%0A"
-              encoded_messages+="$(echo "${messages}" | sed -E 's/$/%0A/g' | tr -d '\n')"
+              encoded_messages+="$(echo "${messages}" | sed -E 's/$/%0A/g' | tr -d '
+')"
               echo "::${messagetype} file=${path#${PWD}/ports/},line=1,col=1::${encoded_messages}"
             else
                 echo "##### ✅ ${subport}" >> $GITHUB_STEP_SUMMARY
@@ -248,12 +255,16 @@ jobs:
               echo "$test_msgs"
               echo "⚠️ Test warnings" >> $GITHUB_STEP_SUMMARY
 
-              printf '```\n%s\n```\n' "$test_msgs" >> $GITHUB_STEP_SUMMARY
+              printf '```
+%s
+```
+' "$test_msgs" >> $GITHUB_STEP_SUMMARY
 
               path=$(port file "$subport")
               # See https://github.com/actions/toolkit/issues/193#issuecomment-605394935
               encoded_messages="port test ${subport}:%0A"
-              encoded_messages+="$(echo "${test_msgs}" | sed -E 's/$/%0A/g' | tr -d '\n')"
+              encoded_messages+="$(echo "${test_msgs}" | sed -E 's/$/%0A/g' | tr -d '
+')"
               echo "::warning file=${path#${PWD}/ports/},line=1,col=1::${encoded_messages}"
             elif [ $test_fail -eq 0 ]; then
                  echo "✅ Successfully tested" >> $GITHUB_STEP_SUMMARY

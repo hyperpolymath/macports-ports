@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
 name: "Index & mirror changed ports"
 
 on:
@@ -100,7 +101,8 @@ jobs:
               | grep -E '^[^._/][^/]*/[^/]+/(Portfile$|files/)' \
               | cut -d/ -f2 \
               | sort -u \
-              | tr '\n' ' ' \
+              | tr '
+' ' ' \
               | sed 's/ $//')
 
           echo "$portlist"
